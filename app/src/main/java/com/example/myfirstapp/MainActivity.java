@@ -2,14 +2,18 @@ package com.example.myfirstapp;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.os.PersistableBundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,22 +40,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         System.out.println("\t\t\tRestart !!!!!");
         super.onRestart();
-    }
-
-    /** Called when the user clicks the Send button */
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }
-    static final int PICK_CONTACT_REQUEST = 1;  // The request code
-
-    public void pickContact(View view) {
-        Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-        pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
-        startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
     }
 
     @Override
@@ -84,6 +72,39 @@ public class MainActivity extends AppCompatActivity {
                 view.setText(number);
             }
         }
+
+        if(requestCode == CAPTURE_PHOTO_REQUEST){
+            if(resultCode == RESULT_OK){
+                Bitmap imageData = data.getParcelableExtra("data");
+                ImageView imageView = (ImageView) findViewById(R.id.camera_image);
+                imageView.setImageBitmap(imageData);
+                imageView.refreshDrawableState();
+
+            }
+        }
+
+    }
+
+    /** Called when the user clicks the Send button */
+    public void sendMessage(View view) {
+        Intent intent = new Intent(this, DisplayMessageActivity.class);
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String message = editText.getText().toString();
+        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+    }
+    static final int PICK_CONTACT_REQUEST = 1;  // The request code
+    static final int CAPTURE_PHOTO_REQUEST = 2;  // The request code
+
+    public void pickContact(View view) {
+        Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+        pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
+        startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
+    }
+    public void showCameraImage(View view) {
+        Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(camera, CAPTURE_PHOTO_REQUEST);
+
 
     }
 }
